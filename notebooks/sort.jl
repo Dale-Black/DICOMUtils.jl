@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.14.5
+# v0.14.4
 
 using Markdown
 using InteractiveUtils
@@ -31,88 +31,68 @@ md"""
 # ╔═╡ 8b40bea7-4a23-4f4d-8daf-9cff851dc4ac
 TableOfContents()
 
+# ╔═╡ b29bd465-7fb5-4b72-b378-972f43dc011f
+md"""
+## Filepaths
+"""
+
+# ╔═╡ 418ac8e5-f6a5-4305-bd6e-f786174eb024
+filepath = "/Volumes/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/test_small";
+
+# ╔═╡ 3efeaf94-1f43-4132-857e-e5c2aa3578de
+filepath_new = "/Volumes/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/test_small_new";
+
+# ╔═╡ c90d16f7-919d-45c9-a904-676a3acc2b1d
+isdir(filepath_new) || mkdir(filepath_new)
+
 # ╔═╡ 71a99e79-ae78-49f0-8baa-8901dbaf19ae
 md"""
 ## Sorting
 """
 
-# ╔═╡ 418ac8e5-f6a5-4305-bd6e-f786174eb024
-filepath = "//neptune.radsci.uci.edu/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/test";
+# ╔═╡ d8725163-1c2e-469b-afff-94d3be585f58
+function sortbytag(filepath, filepath_new, tag)
+	dir = readdir(filepath)
+	error_paths = []
+	for file = 1:length(dir)
+		dcm_path = filepath * "/" * dir[file]
+		try
+			dcm = DICOM.dcm_parse(dcm_path)
+			dcm_tag = string(dcm[tag])
+			new_dcm_dir = filepath_new * "/" * dcm_tag
 
-# ╔═╡ 3b58d6b3-277b-45f6-81f5-75c0c2717fc1
-dir = readdir(filepath);
-
-# ╔═╡ 2b5fec38-22b8-4a33-ac5b-1599e8d546fd
-dcms = [];
-
-# ╔═╡ 3d43d662-633a-41a1-932e-7a278680cd70
-begin
-	for i = 1:3
-		dcm_file = DICOM.dcm_parse(filepath * "/" * dir[i])
-		push!(dcms, dcm_file)
+			isdir(new_dcm_dir) || mkdir(new_dcm_dir)
+			cp(dcm_path, new_dcm_dir * "/" * string(dir[file]))
+		catch
+			push!(error_paths, dcm_path)
+		end
 	end
+	return error_paths
 end
 
-# ╔═╡ 7d7efb83-f951-455d-a692-0d47f30cdc09
-dcm1 = dcms[1]
+# ╔═╡ 17575e39-2a94-4160-b563-7632eafe046e
+const SeriesNumber = (0x0020,0x0011)
 
-# ╔═╡ 22d1069f-e8cd-4cc9-bdf4-0b265ab00e99
-dcm1[(0x0018, 0x9334)]
+# ╔═╡ 17579e7f-aba5-4e95-ac78-9aed97b9c93f
+const AccessionNumber = (0x0008,0x0050)
 
-# ╔═╡ f9835e6a-4611-4f6f-aa78-668b3e58c87a
-dcm_directory = DICOM.dcmdir_parse(filepath)
+# ╔═╡ 6a8779af-6c69-41cf-81a5-9358712888c1
+const PatientName = (0x0010,0x0010)
 
-# ╔═╡ 51d0522a-52aa-4b10-a684-fe8b0f4e6bba
-length(dcm_directory)
-
-# ╔═╡ 803dbcdd-6730-4772-97ec-3875fa50e170
-# with_terminal() do
-# 	for i = 1:3
-# 		println(dcm_directory[i])
-# 	end
-# end
-
-# ╔═╡ 5bb06da7-1e98-4a94-9fc9-da3312a66a26
-tag_array = []
-
-# ╔═╡ ff06bf7b-83ee-4dce-957e-bcbe1940c811
-push!(tag_array, dcm_directory[i][((0x0018, 0x9334))])
-
-# ╔═╡ fdbeab00-adf3-42e8-89cf-207087e585f0
-unique_tags = unique(tag_array)
-
-# ╔═╡ 4473e79b-b458-433c-8fc2-357c34903f63
-for i = 1:length(unique_tags)
-	dcm_directory[i][unique_tags[i]]
-end
-
-# ╔═╡ e8086d23-46fc-42b8-b621-df84ad070d89
-function sortby(directory, dcm_tag)
-	dcm_directory = DICOM.dcmdir_parse(directory)
-	length(dcm_directory)
-	unique(dcm_dir)
-end
-
-# ╔═╡ e5bdde53-fdfc-4d44-869e-7387bbf27a50
-
+# ╔═╡ 66e73828-1d20-4ebd-ae46-33d866f56dd9
+sortbytag(filepath, filepath_new, PatientName)
 
 # ╔═╡ Cell order:
 # ╟─16e05577-e692-41a7-b969-f260f0141af6
 # ╠═3ae1dd50-aeb0-11eb-3fb1-77aa043fe6e4
 # ╠═8b40bea7-4a23-4f4d-8daf-9cff851dc4ac
-# ╟─71a99e79-ae78-49f0-8baa-8901dbaf19ae
+# ╟─b29bd465-7fb5-4b72-b378-972f43dc011f
 # ╠═418ac8e5-f6a5-4305-bd6e-f786174eb024
-# ╠═3b58d6b3-277b-45f6-81f5-75c0c2717fc1
-# ╠═2b5fec38-22b8-4a33-ac5b-1599e8d546fd
-# ╠═3d43d662-633a-41a1-932e-7a278680cd70
-# ╠═7d7efb83-f951-455d-a692-0d47f30cdc09
-# ╠═22d1069f-e8cd-4cc9-bdf4-0b265ab00e99
-# ╠═f9835e6a-4611-4f6f-aa78-668b3e58c87a
-# ╠═51d0522a-52aa-4b10-a684-fe8b0f4e6bba
-# ╠═803dbcdd-6730-4772-97ec-3875fa50e170
-# ╠═5bb06da7-1e98-4a94-9fc9-da3312a66a26
-# ╠═ff06bf7b-83ee-4dce-957e-bcbe1940c811
-# ╠═fdbeab00-adf3-42e8-89cf-207087e585f0
-# ╠═4473e79b-b458-433c-8fc2-357c34903f63
-# ╠═e8086d23-46fc-42b8-b621-df84ad070d89
-# ╠═e5bdde53-fdfc-4d44-869e-7387bbf27a50
+# ╠═3efeaf94-1f43-4132-857e-e5c2aa3578de
+# ╠═c90d16f7-919d-45c9-a904-676a3acc2b1d
+# ╟─71a99e79-ae78-49f0-8baa-8901dbaf19ae
+# ╠═d8725163-1c2e-469b-afff-94d3be585f58
+# ╠═17575e39-2a94-4160-b563-7632eafe046e
+# ╠═17579e7f-aba5-4e95-ac78-9aed97b9c93f
+# ╠═6a8779af-6c69-41cf-81a5-9358712888c1
+# ╠═66e73828-1d20-4ebd-ae46-33d866f56dd9
