@@ -1,6 +1,12 @@
 # DICOMUtils
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://Dale-Black.github.io/DICOMUtils.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://Dale-Black.github.io/DICOMUtils.jl/dev)
-[![Build Status](https://travis-ci.com/Dale-Black/DICOMUtils.jl.svg?branch=master)](https://travis-ci.com/Dale-Black/DICOMUtils.jl)
-[![Coverage](https://codecov.io/gh/Dale-Black/DICOMUtils.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Dale-Black/DICOMUtils.jl)
+Utility functions for working with DICOM files, built on top of DICOM.jl
+
+<details><summary><b>Sorting</b></summary>
+Example of using `sortbytag`
+```julia
+const PatientName = (0x0010,0x0010)
+
+sortbytag(filepath, filepath_new, PatientName)
+```
+</details>
