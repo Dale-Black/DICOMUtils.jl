@@ -1,5 +1,7 @@
 module DICOMUtils
 
-# Write your package code here.
+export
+    # Export sort.jl functions
+    sortbytag,
 
 end
