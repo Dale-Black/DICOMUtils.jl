@@ -40,7 +40,7 @@ function sortbytag_move(filepath, filepath_new, tag)
 			new_dcm_dir = filepath_new * "/" * dcm_tag
 
 			isdir(new_dcm_dir) || mkdir(new_dcm_dir)
-			cp(dcm_path, new_dcm_dir * "/" * string(dir[file]))
+			mv(dcm_path, new_dcm_dir * "/" * string(dir[file]))
 		catch
 			push!(error_paths, dcm_path)
 		end
