@@ -4,7 +4,7 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 3ae1dd50-aeb0-11eb-3fb1-77aa043fe6e4
+# ╔═╡ 9cc959a0-d500-4d24-980c-5de0c765fabd
 begin
 	let
 		# Set up temporary environment
@@ -15,84 +15,57 @@ begin
 		
 		# Download packages
 		Pkg.add("PlutoUI")
-		Pkg.add("DICOM")
+		Pkg.add(Pkg.PackageSpec(url="https://github.com/Dale-Black/DICOMUtils.jl"))
 	end
 	
 	# Import packages
 	using PlutoUI
-	using DICOM
+	using DICOMUtils
 end
 
-# ╔═╡ 16e05577-e692-41a7-b969-f260f0141af6
+# ╔═╡ 7c871f7d-d46e-4b48-8683-35002b9ce17e
 md"""
 ## Set up
 """
 
-# ╔═╡ 8b40bea7-4a23-4f4d-8daf-9cff851dc4ac
+# ╔═╡ f011d8a4-dc21-4c03-ae7e-132c8493cdeb
 TableOfContents()
 
-# ╔═╡ b29bd465-7fb5-4b72-b378-972f43dc011f
+# ╔═╡ 5abd2b07-e290-4740-adcf-7968e6984864
 md"""
 ## Filepaths
 """
 
-# ╔═╡ 418ac8e5-f6a5-4305-bd6e-f786174eb024
-filepath = "/Volumes/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/test_small";
+# ╔═╡ beb3294f-c78f-4715-8b94-a5295bce3b2e
+filepath = "/Users/daleblack/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/128.200.49.44 – FTP/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/DD2708";
 
-# ╔═╡ 3efeaf94-1f43-4132-857e-e5c2aa3578de
-filepath_new = "/Volumes/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/test_small_new";
+# ╔═╡ 163288c1-acac-41c0-9d49-ae91a0413725
+filepath_new = "/Users/daleblack/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/128.200.49.44 – FTP/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/clean_data";
 
-# ╔═╡ c90d16f7-919d-45c9-a904-676a3acc2b1d
+# ╔═╡ 97fc414c-3041-42bb-baf1-b318f6466435
 isdir(filepath_new) || mkdir(filepath_new)
 
-# ╔═╡ 71a99e79-ae78-49f0-8baa-8901dbaf19ae
-md"""
-## Sorting
-"""
-
-# ╔═╡ d8725163-1c2e-469b-afff-94d3be585f58
-function sortbytag(filepath, filepath_new, tag)
-	dir = readdir(filepath)
-	error_paths = []
-	for file = 1:length(dir)
-		dcm_path = filepath * "/" * dir[file]
-		try
-			dcm = DICOM.dcm_parse(dcm_path)
-			dcm_tag = string(dcm[tag])
-			new_dcm_dir = filepath_new * "/" * dcm_tag
-
-			isdir(new_dcm_dir) || mkdir(new_dcm_dir)
-			cp(dcm_path, new_dcm_dir * "/" * string(dir[file]))
-		catch
-			push!(error_paths, dcm_path)
-		end
-	end
-	return error_paths
-end
-
-# ╔═╡ 17575e39-2a94-4160-b563-7632eafe046e
+# ╔═╡ bfb89ccf-f9fc-4179-ba2e-fb942dd5782b
 const SeriesNumber = (0x0020,0x0011)
 
-# ╔═╡ 17579e7f-aba5-4e95-ac78-9aed97b9c93f
+# ╔═╡ d81a47a8-7e49-46f2-a0a4-ce94ab55c39d
 const AccessionNumber = (0x0008,0x0050)
 
-# ╔═╡ 6a8779af-6c69-41cf-81a5-9358712888c1
+# ╔═╡ 8891e374-6823-4a92-8b86-d3b8275bc2bb
 const PatientName = (0x0010,0x0010)
 
-# ╔═╡ 66e73828-1d20-4ebd-ae46-33d866f56dd9
-sortbytag(filepath, filepath_new, PatientName)
+# ╔═╡ df97d503-2b6a-49d7-9a35-4f10b3168eb0
+DICOMUtils.sortbytag(filepath, filepath_new, PatientName)
 
 # ╔═╡ Cell order:
-# ╟─16e05577-e692-41a7-b969-f260f0141af6
-# ╠═3ae1dd50-aeb0-11eb-3fb1-77aa043fe6e4
-# ╠═8b40bea7-4a23-4f4d-8daf-9cff851dc4ac
-# ╟─b29bd465-7fb5-4b72-b378-972f43dc011f
-# ╠═418ac8e5-f6a5-4305-bd6e-f786174eb024
-# ╠═3efeaf94-1f43-4132-857e-e5c2aa3578de
-# ╠═c90d16f7-919d-45c9-a904-676a3acc2b1d
-# ╟─71a99e79-ae78-49f0-8baa-8901dbaf19ae
-# ╠═d8725163-1c2e-469b-afff-94d3be585f58
-# ╠═17575e39-2a94-4160-b563-7632eafe046e
-# ╠═17579e7f-aba5-4e95-ac78-9aed97b9c93f
-# ╠═6a8779af-6c69-41cf-81a5-9358712888c1
-# ╠═66e73828-1d20-4ebd-ae46-33d866f56dd9
+# ╟─7c871f7d-d46e-4b48-8683-35002b9ce17e
+# ╠═9cc959a0-d500-4d24-980c-5de0c765fabd
+# ╠═f011d8a4-dc21-4c03-ae7e-132c8493cdeb
+# ╟─5abd2b07-e290-4740-adcf-7968e6984864
+# ╠═beb3294f-c78f-4715-8b94-a5295bce3b2e
+# ╠═163288c1-acac-41c0-9d49-ae91a0413725
+# ╠═97fc414c-3041-42bb-baf1-b318f6466435
+# ╠═bfb89ccf-f9fc-4179-ba2e-fb942dd5782b
+# ╠═d81a47a8-7e49-46f2-a0a4-ce94ab55c39d
+# ╠═8891e374-6823-4a92-8b86-d3b8275bc2bb
+# ╠═df97d503-2b6a-49d7-9a35-4f10b3168eb0
