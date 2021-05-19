@@ -37,10 +37,10 @@ md"""
 """
 
 # ╔═╡ beb3294f-c78f-4715-8b94-a5295bce3b2e
-filepath = "/Users/daleblack/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/128.200.49.44 – FTP/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/DD2708";
+filepath = "/Users/daleblack/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/Neptune – FTP/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/DD2708";
 
 # ╔═╡ 163288c1-acac-41c0-9d49-ae91a0413725
-filepath_new = "/Users/daleblack/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/128.200.49.44 – FTP/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/clean_data";
+filepath_new = "/Users/daleblack/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/Neptune – FTP/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/clean_data";
 
 # ╔═╡ 97fc414c-3041-42bb-baf1-b318f6466435
 isdir(filepath_new) || mkdir(filepath_new)
@@ -55,7 +55,13 @@ const AccessionNumber = (0x0008,0x0050)
 const PatientName = (0x0010,0x0010)
 
 # ╔═╡ df97d503-2b6a-49d7-9a35-4f10b3168eb0
-DICOMUtils.sortbytag(filepath, filepath_new, PatientName)
+# DICOMUtils.sortbytag(filepath, filepath_new, PatientName)
+
+# ╔═╡ 9173ef81-28bf-4c3a-abe9-418944ed2373
+config1_path = "/Users/daleblack/Library/Group Containers/G69SCX94XU.duck/Library/Application Support/duck/Volumes/Neptune – FTP/NeptuneData/Datasets/DynamicPhantom/DICOM/D202104/clean_data/CONFIG 1^275";
+
+# ╔═╡ 08848c49-0037-4789-8a73-1d4b3d1ef42e
+# DICOMUtils.sortbytag_move(config1_path, config1_path, SeriesNumber)
 
 # ╔═╡ Cell order:
 # ╟─7c871f7d-d46e-4b48-8683-35002b9ce17e
@@ -69,3 +75,5 @@ DICOMUtils.sortbytag(filepath, filepath_new, PatientName)
 # ╠═d81a47a8-7e49-46f2-a0a4-ce94ab55c39d
 # ╠═8891e374-6823-4a92-8b86-d3b8275bc2bb
 # ╠═df97d503-2b6a-49d7-9a35-4f10b3168eb0
+# ╠═9173ef81-28bf-4c3a-abe9-418944ed2373
+# ╠═08848c49-0037-4789-8a73-1d4b3d1ef42e
