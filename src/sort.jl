@@ -13,7 +13,7 @@ function sortbytag(filepath, filepath_new, tag)
 			dcm = DICOM.dcm_parse(dcm_path)
 			dcm_tag = string(dcm[tag])
 			if occursin("\\", dcm_tag)
-				dcm_tag = replace(str, "\\" => "_")
+				dcm_tag = replace(dcm_tag, "\\" => "_")
 			end
 			new_dcm_dir = filepath_new * "/" * dcm_tag
 
@@ -41,7 +41,7 @@ function sortbytag_move(filepath, filepath_new, tag)
 			dcm = DICOM.dcm_parse(dcm_path)
 			dcm_tag = string(dcm[tag])
 			if occursin("\\", dcm_tag)
-				dcm_tag = replace(str, "\\" => "_")
+				dcm_tag = replace(dcm_tag, "\\" => "_")
 			end
 			new_dcm_dir = filepath_new * "/" * dcm_tag
 
