@@ -42,7 +42,7 @@ function sortbytag_move(filepath, filepath_new, tag)
 		dcm_path = string(filepath,"/",dir[file])
 		try
 			dcm = DICOM.dcm_parse(dcm_path)
-			dcm_tag = string(dcm[ImageComments])
+			dcm_tag = string(dcm[tag])
 			if (occursin("\\", dcm_tag) || occursin(" ", dcm_tag))
 				new_dcm_tag = string(replace(dcm_tag, "\\" => ""))
 				new_dcm_tag = string(replace(new_dcm_tag, " " => ""))
