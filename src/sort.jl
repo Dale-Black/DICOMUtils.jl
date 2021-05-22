@@ -41,7 +41,7 @@ function sortbytag_move(filepath, filepath_new, tag)
 			dcm = DICOM.dcm_parse(dcm_path)
 			dcm_tag = string(dcm[tag])
 			if occursin("\\", dcm_tag)
-				dcm_tag = replace(dcm_tag, "\\" => "_")
+				dcm_tag = replace(dcm_tag, "\\" => "")
 			end
 			new_dcm_dir = filepath_new * "/" * dcm_tag
 
