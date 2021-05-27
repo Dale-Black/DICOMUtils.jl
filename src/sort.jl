@@ -7,7 +7,7 @@ For more information look at DICOM.jl and https://www.dicomlibrary.com/dicom/dic
 If a `tag` contains either a backslash "\" or a space " ", those will be removed
 to make sorting easier
 """
-function sortbytag(filepath, filepath_new, tag)
+function sortbytag_copy(filepath, filepath_new, tag)
 	dir = readdir(filepath)
 	error_paths = []
 	for file = 1:length(dir)
