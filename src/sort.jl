@@ -1,5 +1,5 @@
 """
-    sortbytag(filepath, filepath_new, tag)
+    sortbytag_copy(filepath, filepath_new, tag)
 Sort DICOM files into folders by specific tags, using the format `tag=(0x0010,0x0010)`.
 Returns an array of filepaths that were unable to be copied for whatever reason.
 For more information look at DICOM.jl and https://www.dicomlibrary.com/dicom/dicom-tags/
