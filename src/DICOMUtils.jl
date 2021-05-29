@@ -9,6 +9,6 @@ export
     # Export sort.jl functions
     sortbytag_copy,
     sortbytag_move,
-    load_dcm_array
+    load_dcm_array,
 
 end
