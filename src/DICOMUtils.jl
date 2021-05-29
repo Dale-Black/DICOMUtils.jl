@@ -2,6 +2,7 @@ module DICOMUtils
 
 using DICOM
 
+include("./load.jl")
 include("./sort.jl")
 
 export
