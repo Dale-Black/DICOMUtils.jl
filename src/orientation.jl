@@ -1,7 +1,10 @@
 """
     io_orientation(affine, tol=nothing)
-Ported from nibabel in Python.
+
 Orientation of input axes in terms of output axes for `affine`
+
+Ported from nibabel 
+(https://github.com/nipy/nibabel/blob/e51bcb43d9c6f5ad329ffb230afda0c26b9e8617/nibabel/orientations.py#L22)
 
 Parameters
 ----------
