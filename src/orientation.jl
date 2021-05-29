@@ -39,21 +39,20 @@ function io_orientation(affine, tol=nothing)
 		tol = maximum(S) * maximum(size(RS)) * floatmin(typeof(S[1]))
 	end
 	keep = S .> tol
-	R = P[:,keep] * Qs[:,keep]
+	R = P[:,keep] * Qs[keep, :]
 	ornt = Int8.(ones((p, 2))) .* NaN
 	for in_ax = 1:p
 		col = R[:, in_ax]
-		if (typeof(col) != typeof(0)) || (isapprox(col, 0) != true) # needs work
+		if ((all(x->x==0.0, col)) == false)
 			out_ax = argmax(abs.(col))
 			ornt[in_ax, 1] = out_ax
-			@assert col[out_ax] != 0\
+			@assert col[out_ax] != 0
 			if col[out_ax] < 0
 				ornt[in_ax, 2] = -1
 			else
 				ornt[in_ax, 2] = 1
 			end
 			R[out_ax, :] .= 0
-			println(R)
 		end
 	end
 	return ornt
