@@ -108,3 +108,43 @@ function axcodes2ornt(axcodes, labels=nothing)
 	end
 	return ornt
 end
+
+"""
+	ornt_transform(start_ornt, end_ornt)
+
+Return the orientation that transforms from `start_ornt` to `end_ornt`
+
+Ported from nibabel
+(https://github.com/nipy/nibabel/blob/e51bcb43d9c6f5ad329ffb230afda0c26b9e8617/nibabel/orientations.py#L309)
+
+Parameters
+----------
+start_ornt : (n,2) orientation array
+	Initial orientation.
+end_ornt : (n,2) orientation array
+	Final orientation.
+
+Returns
+-------
+orientations : (p, 2) array
+	The orientation that will transform the `start_ornt` to the `end_ornt`.
+"""
+function ornt_transform(start_ornt, end_ornt)
+	@assert size(start_ornt) == size(end_ornt)
+	
+	result = Array{Float64}(undef, size(start_ornt))
+	for (end_in_idx, (end_out_idx, end_flip)) in enumerate(eachrow(end_ornt))
+		for (start_in_idx, (start_out_idx, start_flip)) in enumerate(eachrow(start_ornt))
+			if (end_out_idx == start_out_idx)
+				if (start_flip == end_flip)
+					flip = 1
+				else
+					flip = -1
+				end
+				result[start_in_idx, :] = [end_in_idx, flip]
+				break
+			end
+		end
+	end
+	return result
+end

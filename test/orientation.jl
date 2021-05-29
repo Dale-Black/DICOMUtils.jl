@@ -38,3 +38,34 @@ end
         @test test == answer
     end
 end
+
+@testset ExtendedTestSet "ornt_transform" begin
+    @testset ExtendedTestSet "ornt_transform" begin
+        src = [1.0 1.0
+               2.0 1.0
+               3.0 1.0]
+        dst = [2.0 1.0
+               1.0 -1.0
+               3.0 1.0]
+        answer = [2.0 -1.0
+                  1.0 1.0
+                  3.0 1.0]
+        test = ornt_transform(src, dst)
+        @test test == answer
+    end
+
+    @testset ExtendedTestSet "ornt_transform" begin
+        src = [1.0 1.0
+               2.0 1.0
+               3.0 1.0]
+        dst = [2.0 1.0
+               1.0 1.0
+               3.0 1.0]
+        answer = [2.0 1.0
+                  1.0 1.0
+                  3.0 1.0]
+        test = ornt_transform(src, dst)
+        @test test == answer
+    end
+
+end
