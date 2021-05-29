@@ -6,6 +6,8 @@ include("./sort.jl")
 
 export
     # Export sort.jl functions
-    sortbytag
+    sortbytag_copy,
+    sortbytag_move,
+    load_dcm_array
 
 end
