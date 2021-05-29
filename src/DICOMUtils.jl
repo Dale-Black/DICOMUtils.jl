@@ -13,6 +13,7 @@ export
 
     # Export orientation.jl functions
     io_orientation,
+    axcodes2ornt,
 
     # Export sort.jl functions
     sortbytag_copy,

@@ -57,3 +57,54 @@ function io_orientation(affine, tol=nothing)
 	end
 	return ornt
 end
+
+"""
+	axcodes2ornt(axcodes, labels=nothing)
+
+Convert axis codes `axcodes` to an orientation
+
+Ported from nibabel
+(https://github.com/nipy/nibabel/blob/e51bcb43d9c6f5ad329ffb230afda0c26b9e8617/nibabel/orientations.py#L309)
+
+Parameters
+----------
+axcodes : (N,) tuple
+	axis codes - see ornt2axcodes docstring
+labels : optional, None or sequence of (2,) sequences
+	(2,) sequences are labels for (beginning, end) of output axis.  That
+	is, if the first element in `axcodes` is ``front``, and the second
+	(2,) sequence in `labels` is ('back', 'front') then the first
+	row of `ornt` will be ``[1, 1]``. If None, equivalent to
+	``(('L','R'),('P','A'),('I','S'))`` - that is - RAS axes.
+Returns
+-------
+ornt : (N,2) array-like
+	orientation array - see io_orientation docstring
+
+"""
+function axcodes2ornt(axcodes, labels=nothing)
+	if (labels === nothing)
+		labels = zip(["L" "P" "I"], ["R", "A", "S"])
+	else
+		labels = labels
+	end
+	n_axes = length(axcodes)
+	ornt = Int8.(ones(n_axes, 2)) .* NaN
+	for (code_idx, code) in enumerate(axcodes)
+		for (label_idx, codes) in enumerate(labels)
+			# println(label_idx, codes)
+			if (code == nothing)
+				continue
+			end
+			if (code in codes)
+				if (code == codes[1])
+					ornt[code_idx,:] = [label_idx, -1]
+				else
+					ornt[code_idx,:] = [label_idx, 1]
+					break
+				end
+			end
+		end
+	end
+	return ornt
+end

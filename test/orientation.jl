@@ -20,3 +20,21 @@ include("./imports.jl")
     #     @test test == answer
     # end
 end
+
+@testset ExtendedTestSet "axcodes2ornt" begin
+    @testset ExtendedTestSet "axcodes2ornt" begin
+        answer = [1.0 1.0
+                  2.0 1.0
+                  3.0 1.0]
+        test = axcodes2ornt(("R", "A", "S"))
+        @test test == answer
+    end
+
+    @testset ExtendedTestSet "axcodes2ornt" begin
+        answer = [2.0 1.0
+                  1.0 -1.0
+                  3.0 1.0]
+        test = axcodes2ornt(('F', 'L', 'U'), (('L','R'),('B','F'),('D','U')))
+        @test test == answer
+    end
+end
