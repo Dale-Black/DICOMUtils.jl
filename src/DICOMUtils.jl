@@ -15,6 +15,7 @@ export
     io_orientation,
     axcodes2ornt,
     ornt_transform,
+    apply_orientation,
 
     # Export sort.jl functions
     sortbytag_copy,

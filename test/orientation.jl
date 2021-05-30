@@ -67,5 +67,32 @@ end
         test = ornt_transform(src, dst)
         @test test == answer
     end
+end
 
+@testset ExtendedTestSet "apply_orientation" begin
+    @testset ExtendedTestSet "apply_orientation" begin
+        d1 = [1 1 1 1
+              1 1 1 1
+              0 0 0 0
+              1 0 0 1]
+        d2 = [1 1 1 1
+              1 1 1 1
+              0 0 0 0
+              1 0 0 1]
+        data = cat(d1, d2, dims=3)
+        o = [2.0 1.0
+             1.0 1.0
+             3.0 1.0]
+        a1 = [1 1 0 1
+              1 1 0 0
+              1 1 0 0
+              1 1 0 1]
+        a2 = [1 1 0 1
+              1 1 0 0
+              1 1 0 0
+              1 1 0 1]
+        answer = cat(a1, a2, dims=3)
+        test = apply_orientation(data, o)
+        @test test == answer
+    end
 end

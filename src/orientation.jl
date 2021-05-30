@@ -148,3 +148,44 @@ function ornt_transform(start_ornt, end_ornt)
 	end
 	return result
 end
+
+"""
+	apply_orientation(arr, ornt)
+	
+Apply transformations implied by `ornt` to the first n axes of the array `arr`
+
+Ported from nibabel
+(https://github.com/nipy/nibabel/blob/e51bcb43d9c6f5ad329ffb230afda0c26b9e8617/nibabel/orientations.py#L309)
+
+Parameters
+----------
+arr : array-like of data with ndim >= n
+ornt : (n,2) orientation array
+   orientation transform. ``ornt[N,1]` is flip of axis N of the
+   array implied by `shape`, where 1 means no flip and -1 means
+   flip.  For example, if ``N==0`` and ``ornt[0,1] == -1``, and
+   there's an array ``arr`` of shape `shape`, the flip would
+   correspond to the effect of ``np.flipud(arr)``.  ``ornt[:,0]`` is
+   the transpose that needs to be done to the implied array, as in
+   ``arr.transpose(ornt[:,0])``
+
+Returns
+-------
+t_arr : array
+   data array `arr` transformed according to ornt
+"""
+function apply_orientation(arr, ornt)
+	t_arr = arr
+	n = size(ornt)[1]
+	if (length(size(t_arr)) < n)
+		error("Data array has fewer dimensions than `orientation`")
+	end
+	for (ax, flip) in enumerate(ornt[:,2])
+		if (flip == -1)
+			t_arr = reverse(t_arr, dims=ax)
+		end
+	end
+	full_transpose = collect(1:length(size(t_arr)))
+	full_transpose[1:n] = sortperm(ornt[:,1])
+	t_arr = permutedims(t_arr, full_transpose)
+end
