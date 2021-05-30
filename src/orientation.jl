@@ -151,7 +151,7 @@ end
 
 """
 	apply_orientation(arr, ornt)
-	
+
 Apply transformations implied by `ornt` to the first n axes of the array `arr`
 
 Ported from nibabel
@@ -188,4 +188,58 @@ function apply_orientation(arr, ornt)
 	full_transpose = collect(1:length(size(t_arr)))
 	full_transpose[1:n] = sortperm(ornt[:,1])
 	t_arr = permutedims(t_arr, full_transpose)
+end
+
+"""
+Affine transform reversing transforms implied in `ornt`
+
+Ported from nibabel
+(https://github.com/nipy/nibabel/blob/e51bcb43d9c6f5ad329ffb230afda0c26b9e8617/nibabel/orientations.py#L309)
+
+Imagine you have an array ``arr`` of shape `shape`, and you apply the
+    transforms implied by `ornt` (more below), to get ``tarr``.
+    ``tarr`` may have a different shape ``shape_prime``.  This routine
+    returns the affine that will take a array coordinate for ``tarr``
+    and give you the corresponding array coordinate in ``arr``.
+    Parameters
+    ----------
+    ornt : (p, 2) ndarray
+       orientation transform. ``ornt[P, 1]` is flip of axis N of the array
+       implied by `shape`, where 1 means no flip and -1 means flip.  For
+       example, if ``P==0`` and ``ornt[0, 1] == -1``, and there's an array
+       ``arr`` of shape `shape`, the flip would correspond to the effect of
+       ``np.flipud(arr)``.  ``ornt[:,0]`` gives us the (reverse of the)
+       transpose that has been done to ``arr``.  If there are any NaNs in
+       `ornt`, we raise an ``OrientationError`` (see notes)
+    shape : length p sequence
+       shape of array you may transform with `ornt`
+	
+    Returns
+    -------
+    transform_affine : (p + 1, p + 1) ndarray
+       An array ``arr`` (shape `shape`) might be transformed according to
+       `ornt`, resulting in a transformed array ``tarr``.  `transformed_affine`
+       is the transform that takes you from array coordinates in ``tarr`` to
+       array coordinates in ``arr``.
+
+    Notes
+    -----
+    If a row in `ornt` contains NaN, this means that the input row does not
+    influence the output space, and is thus effectively dropped from the output
+    space.  In that case one ``tarr`` coordinate maps to many ``arr``
+    coordinates, we can't invert the transform, and we raise an error
+
+"""
+function inv_ornt_aff(ornt, shape::AbstractArray)
+	if any(x -> x === NaN, ornt)
+		error("Cannot invert the orientation transform")
+	end
+	p = size(ornt)[1]
+	shape = shape[1:p]
+	axis_transpose = [Int(v) for v in ornt[:,1]] .+ 1
+	undo_reorder = I(p+1)[append!(axis_transpose, p+1), :]
+	undo_flip = Float64.(diagm(append!(ornt[:,2], 1)))
+	center_trans = -(shape .- 1) ./ 2.0
+	undo_flip[1:p,p+1] = (ornt[:,2] .* center_trans) .- center_trans
+	return undo_flip * undo_reorder
 end

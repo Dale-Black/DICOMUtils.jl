@@ -96,3 +96,31 @@ end
         @test test == answer
     end
 end
+
+@testset ExtendedTestSet "inv_ornt_aff" begin
+    @testset ExtendedTestSet "inv_ornt_aff" begin
+        ornt = [1 0 0
+	            0 1 0
+	            0 0 1]
+        shape = [4, 4, 2]
+        answer = [0.0 0.0 0.0 1.5
+                  1.0 0.0 0.0 0.0
+                  0.0 0.0 0.0 0.5
+                  0.0 0.0 0.0 1.0]
+        test = inv_ornt_aff(ornt, shape)
+        @test test == answer
+    end
+
+    @testset ExtendedTestSet "inv_ornt_aff" begin
+        ornt = [1 0 1
+	            1 0 1
+	            0 0 1]
+        shape = [4, 4, 2]
+        answer = [0.0 0.0 0.0 1.5
+                  0.0 0.0 0.0 1.5
+                  0.0 0.0 0.0 0.5
+                  0.0 0.0 0.0 1.0]
+        test = inv_ornt_aff(ornt, shape)
+        @test test == answer
+    end
+end
