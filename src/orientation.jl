@@ -34,9 +34,9 @@ function io_orientation(affine, tol=nothing)
 	zooms = sqrt.(sum(A, dims=1))
 	zooms[map(x -> x == 0.0, zooms)] .= 1
 	RS = RZS ./ zooms
-	P, S, Qs = svd(RS)
+	P, S, Qs = svd(RS |> collect)
 	if (tol === nothing)
-		tol = maximum(S) * maximum(size(RS)) * floatmin(typeof(S[1]))
+		tol = maximum(S) * maximum(size(RS)) * floatmin(Float64.(S[1]))
 	end
 	keep = S .> tol
 	R = P[:,keep] * Qs[keep, :]
