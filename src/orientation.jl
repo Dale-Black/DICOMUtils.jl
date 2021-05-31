@@ -191,6 +191,8 @@ function apply_orientation(arr, ornt)
 end
 
 """
+	inv_ornt_aff(ornt, shape::AbstractArray)
+
 Affine transform reversing transforms implied in `ornt`
 
 Ported from nibabel
