@@ -236,7 +236,7 @@ function inv_ornt_aff(ornt, shape::AbstractArray)
 	end
 	p = size(ornt)[1]
 	shape = shape[1:p]
-	axis_transpose = [Int(v) for v in ornt[:,1]] .+ 1
+	axis_transpose = [Int(v) for v in ornt[:,1]]
 	undo_reorder = I(p+1)[append!(axis_transpose, p+1), :]
 	undo_flip = Float64.(diagm(append!(ornt[:,2], 1)))
 	center_trans = -(shape .- 1) ./ 2.0
