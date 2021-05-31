@@ -243,3 +243,47 @@ function inv_ornt_aff(ornt, shape::AbstractArray)
 	undo_flip[1:p,p+1] = (ornt[:,2] .* center_trans) .- center_trans
 	return undo_flip * undo_reorder
 end
+
+"""
+	orientation(data_array, axcodes=nothing, affine=nothing, as_closest_canonical=false,
+				labels=zip(["L" "P" "I"], ["R", "A", "S"]))
+
+Change the input image's orientation into the specified based on `axcodes`
+
+Ported from Monai
+(https://docs.monai.io/en/latest/_modules/monai/transforms/spatial/array.html#Orientation)
+"""
+function orientation(data_array, axcodes=nothing, affine=nothing, as_closest_canonical=false,
+					labels=zip(["L" "P" "I"], ["R", "A", "S"]))
+	sr = length(size(data_array)) - 1
+	if (sr ≤ 0)
+		error("data_array must have at least one spatial dimension.")
+	end
+	if (affine === nothing)
+		affine = Float64.(I(sr + 1))
+		affine_ = Float64.(I(sr + 1))
+	else
+		affine_ = affine
+	end
+	src = io_orientation(affine_)
+	
+	if as_closest_canonical
+		spatial_ornt = src
+	else
+		if (axcodes === nothing)
+			error("error")
+		end
+		dst = axcodes2ornt(axcodes[1:sr], labels)
+		if (length(dst) .< sr)
+			error("axcodes must match data_array spatially")
+		end
+		spatial_ornt = ornt_transform(src, dst)
+	end
+	ornt = copy(spatial_ornt)
+	ornt[:, 1] .+= 1
+	ornt = cat([1 1], ornt, dims=1)
+	shape = size(data_array)[2:end]
+	data_array = apply_orientation(data_array, ornt)
+	new_affine = inv_ornt_aff(spatial_ornt, collect(shape))
+	return data_array, affine, new_affine
+end
