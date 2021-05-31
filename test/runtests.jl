@@ -1,6 +1,3 @@
-using DICOMUtils
-using Test
+include("./imports.jl")
 
-@testset "DICOMUtils.jl" begin
-    # Write your tests here.
-end
+include("orientation.jl")
