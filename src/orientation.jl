@@ -28,34 +28,34 @@ input axis is in the same direction as the corresponding output axis and
 which can happen when p > q, then this row should be considered dropped.
 """
 function io_orientation(affine, tol=nothing)
-	q, p = size(affine)[1]-1, size(affine)[2]-1
-	RZS = affine[1:q, 1:p]
-	A = RZS * RZS
-	zooms = sqrt.(sum(A, dims=1))
-	zooms[map(x -> x == 0.0, zooms)] .= 1
-	RS = RZS ./ zooms
-	P, S, Qs = svd(RS |> collect)
-	if (tol === nothing)
-		tol = maximum(S) * maximum(size(RS)) * floatmin(Float64.(S[1]))
-	end
-	keep = S .> tol
-	R = P[:,keep] * Qs[keep, :]
-	ornt = Int8.(ones((p, 2))) .* NaN
-	for in_ax = 1:p
-		col = R[:, in_ax]
-		if ((all(x->x==0.0, col)) == false)
-			out_ax = argmax(abs.(col))
-			ornt[in_ax, 1] = out_ax
-			@assert col[out_ax] != 0
-			if col[out_ax] < 0
-				ornt[in_ax, 2] = -1
-			else
-				ornt[in_ax, 2] = 1
-			end
-			R[out_ax, :] .= 0
-		end
-	end
-	return ornt
+    q, p = size(affine)[1] - 1, size(affine)[2] - 1
+    RZS = affine[1:q, 1:p]
+    A = RZS * RZS
+    zooms = sqrt.(sum(A; dims=1))
+    zooms[map(x -> x == 0.0, zooms)] .= 1
+    RS = RZS ./ zooms
+    P, S, Qs = svd(collect(RS))
+    if (tol === nothing)
+        tol = maximum(S) * maximum(size(RS)) * floatmin(Float64.(S[1]))
+    end
+    keep = S .> tol
+    R = P[:, keep] * Qs[keep, :]
+    ornt = Int8.(ones((p, 2))) .* NaN
+    for in_ax in 1:p
+        col = R[:, in_ax]
+        if ((all(x -> x == 0.0, col)) == false)
+            out_ax = argmax(abs.(col))
+            ornt[in_ax, 1] = out_ax
+            @assert col[out_ax] != 0
+            if col[out_ax] < 0
+                ornt[in_ax, 2] = -1
+            else
+                ornt[in_ax, 2] = 1
+            end
+            R[out_ax, :] .= 0
+        end
+    end
+    return ornt
 end
 
 """
@@ -83,30 +83,30 @@ ornt : (N,2) array-like
 
 """
 function axcodes2ornt(axcodes, labels=nothing)
-	if (labels === nothing)
-		labels = zip(["L" "P" "I"], ["R", "A", "S"])
-	else
-		labels = labels
-	end
-	n_axes = length(axcodes)
-	ornt = Int8.(ones(n_axes, 2)) .* NaN
-	for (code_idx, code) in enumerate(axcodes)
-		for (label_idx, codes) in enumerate(labels)
-			# println(label_idx, codes)
-			if (code == nothing)
-				continue
-			end
-			if (code in codes)
-				if (code == codes[1])
-					ornt[code_idx,:] = [label_idx, -1]
-				else
-					ornt[code_idx,:] = [label_idx, 1]
-					break
-				end
-			end
-		end
-	end
-	return ornt
+    if (labels === nothing)
+        labels = zip(["L" "P" "I"], ["R", "A", "S"])
+    else
+        labels = labels
+    end
+    n_axes = length(axcodes)
+    ornt = Int8.(ones(n_axes, 2)) .* NaN
+    for (code_idx, code) in enumerate(axcodes)
+        for (label_idx, codes) in enumerate(labels)
+            # println(label_idx, codes)
+            if (code == nothing)
+                continue
+            end
+            if (code in codes)
+                if (code == codes[1])
+                    ornt[code_idx, :] = [label_idx, -1]
+                else
+                    ornt[code_idx, :] = [label_idx, 1]
+                    break
+                end
+            end
+        end
+    end
+    return ornt
 end
 
 """
@@ -130,23 +130,23 @@ orientations : (p, 2) array
 	The orientation that will transform the `start_ornt` to the `end_ornt`.
 """
 function ornt_transform(start_ornt, end_ornt)
-	@assert size(start_ornt) == size(end_ornt)
-	
-	result = Array{Float64}(undef, size(start_ornt))
-	for (end_in_idx, (end_out_idx, end_flip)) in enumerate(eachrow(end_ornt))
-		for (start_in_idx, (start_out_idx, start_flip)) in enumerate(eachrow(start_ornt))
-			if (end_out_idx == start_out_idx)
-				if (start_flip == end_flip)
-					flip = 1
-				else
-					flip = -1
-				end
-				result[start_in_idx, :] = [end_in_idx, flip]
-				break
-			end
-		end
-	end
-	return result
+    @assert size(start_ornt) == size(end_ornt)
+
+    result = Array{Float64}(undef, size(start_ornt))
+    for (end_in_idx, (end_out_idx, end_flip)) in enumerate(eachrow(end_ornt))
+        for (start_in_idx, (start_out_idx, start_flip)) in enumerate(eachrow(start_ornt))
+            if (end_out_idx == start_out_idx)
+                if (start_flip == end_flip)
+                    flip = 1
+                else
+                    flip = -1
+                end
+                result[start_in_idx, :] = [end_in_idx, flip]
+                break
+            end
+        end
+    end
+    return result
 end
 
 """
@@ -175,19 +175,19 @@ t_arr : array
    data array `arr` transformed according to ornt
 """
 function apply_orientation(arr, ornt)
-	t_arr = arr
-	n = size(ornt)[1]
-	if (length(size(t_arr)) < n)
-		error("Data array has fewer dimensions than `orientation`")
-	end
-	for (ax, flip) in enumerate(ornt[:,2])
-		if (flip == -1)
-			t_arr = reverse(t_arr, dims=ax)
-		end
-	end
-	full_transpose = collect(1:length(size(t_arr)))
-	full_transpose[1:n] = sortperm(ornt[:,1])
-	t_arr = permutedims(t_arr, full_transpose)
+    t_arr = arr
+    n = size(ornt)[1]
+    if (length(size(t_arr)) < n)
+        error("Data array has fewer dimensions than `orientation`")
+    end
+    for (ax, flip) in enumerate(ornt[:, 2])
+        if (flip == -1)
+            t_arr = reverse(t_arr; dims=ax)
+        end
+    end
+    full_transpose = collect(1:length(size(t_arr)))
+    full_transpose[1:n] = sortperm(ornt[:, 1])
+    return t_arr = permutedims(t_arr, full_transpose)
 end
 
 """
@@ -233,17 +233,17 @@ Imagine you have an array ``arr`` of shape `shape`, and you apply the
 
 """
 function inv_ornt_aff(ornt, shape::AbstractArray)
-	if any(x -> x === NaN, ornt)
-		error("Cannot invert the orientation transform")
-	end
-	p = size(ornt)[1]
-	shape = shape[1:p]
-	axis_transpose = [Int(v) for v in ornt[:,1]]
-	undo_reorder = I(p+1)[append!(axis_transpose, p+1), :]
-	undo_flip = Float64.(diagm(append!(ornt[:,2], 1)))
-	center_trans = -(shape .- 1) ./ 2.0
-	undo_flip[1:p,p+1] = (ornt[:,2] .* center_trans) .- center_trans
-	return undo_flip * undo_reorder
+    if any(x -> x === NaN, ornt)
+        error("Cannot invert the orientation transform")
+    end
+    p = size(ornt)[1]
+    shape = shape[1:p]
+    axis_transpose = [Int(v) for v in ornt[:, 1]]
+    undo_reorder = I(p + 1)[append!(axis_transpose, p + 1), :]
+    undo_flip = Float64.(diagm(append!(ornt[:, 2], 1)))
+    center_trans = -(shape .- 1) ./ 2.0
+    undo_flip[1:p, p + 1] = (ornt[:, 2] .* center_trans) .- center_trans
+    return undo_flip * undo_reorder
 end
 
 """
@@ -255,37 +255,42 @@ Change the input image's orientation into the specified based on `axcodes`
 Ported from Monai
 (https://docs.monai.io/en/latest/_modules/monai/transforms/spatial/array.html#Orientation)
 """
-function orientation(data_array, axcodes=nothing, affine=nothing, as_closest_canonical=false,
-					labels=zip(["L" "P" "I"], ["R", "A", "S"]))
-	sr = length(size(data_array)) - 1
-	if (sr ≤ 0)
-		error("data_array must have at least one spatial dimension.")
-	end
-	if (affine === nothing)
-		affine = Float64.(I(sr + 1))
-		affine_ = Float64.(I(sr + 1))
-	else
-		affine_ = affine
-	end
-	src = io_orientation(affine_)
-	
-	if as_closest_canonical
-		spatial_ornt = src
-	else
-		if (axcodes === nothing)
-			error("error")
-		end
-		dst = axcodes2ornt(axcodes[1:sr], labels)
-		if (length(dst) .< sr)
-			error("axcodes must match data_array spatially")
-		end
-		spatial_ornt = ornt_transform(src, dst)
-	end
-	ornt = copy(spatial_ornt)
-	ornt[:, 1] .+= 1
-	ornt = cat([1 1], ornt, dims=1)
-	shape = size(data_array)[2:end]
-	data_array = apply_orientation(data_array, ornt)
-	new_affine = inv_ornt_aff(spatial_ornt, collect(shape))
-	return data_array, affine, new_affine
+function orientation(
+    data_array,
+    axcodes=nothing,
+    affine=nothing,
+    as_closest_canonical=false,
+    labels=zip(["L" "P" "I"], ["R", "A", "S"]),
+)
+    sr = length(size(data_array)) - 1
+    if (sr ≤ 0)
+        error("data_array must have at least one spatial dimension.")
+    end
+    if (affine === nothing)
+        affine = Float64.(I(sr + 1))
+        affine_ = Float64.(I(sr + 1))
+    else
+        affine_ = affine
+    end
+    src = io_orientation(affine_)
+
+    if as_closest_canonical
+        spatial_ornt = src
+    else
+        if (axcodes === nothing)
+            error("error")
+        end
+        dst = axcodes2ornt(axcodes[1:sr], labels)
+        if (length(dst) .< sr)
+            error("axcodes must match data_array spatially")
+        end
+        spatial_ornt = ornt_transform(src, dst)
+    end
+    ornt = copy(spatial_ornt)
+    ornt[:, 1] .+= 1
+    ornt = cat([1 1], ornt; dims=1)
+    shape = size(data_array)[2:end]
+    data_array = apply_orientation(data_array, ornt)
+    new_affine = inv_ornt_aff(spatial_ornt, collect(shape))
+    return data_array, affine, new_affine
 end
