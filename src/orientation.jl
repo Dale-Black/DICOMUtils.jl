@@ -110,6 +110,58 @@ function axcodes2ornt(axcodes, labels=nothing)
 end
 
 """
+    ornt2axcodes(ornt, labels=nothing)
+
+Convert orientation `ornt` to labels for axis directions
+
+Ported from nibabel
+(https://github.com/nipy/nibabel/blob/e51bcb43d9c6f5ad329ffb230afda0c26b9e8617/nibabel/orientations.py#L309)
+
+Parameters
+----------
+ornt : (N,2) array-like
+    orientation array - see io_orientation docstring
+labels : optional, None or sequence of (2,) sequences
+    (2,) sequences are labels for (beginning, end) of output axis.  That
+    is, if the first row in `ornt` is ``[1, 1]``, and the second (2,)
+    sequence in `labels` is ('back', 'front') then the first returned axis
+    code will be ``'front'``.  If the first row in `ornt` had been
+    ``[1, -1]`` then the first returned value would have been ``'back'``.
+    If None, equivalent to ``(('L','R'),('P','A'),('I','S'))`` - that is -
+    RAS axes.
+Returns
+-------
+axcodes : (N,) tuple
+    labels for positive end of voxel axes.  Dropped axes get a label of
+    None.
+"""
+function ornt2axcodes(ornt, labels=nothing)
+	if labels == nothing
+		labels = collect(zip(["L" "P" "I"], ["R", "A", "S"]))
+	end
+    axcodes = []
+	 for row in eachrow(ornt)
+		axno, direction = row[1], row[2]
+        if isnan(axno)
+            push!(axcodes, nothing)
+            continue
+		end
+		axint = Int(round(axno))
+		if axint != axno
+			error("Non integer axis number $(axno)")
+		elseif direction == 1
+			axcode = labels[axint][2]
+		elseif direction == -1
+			axcode = labels[axint][1]
+		else
+			error("Direction should be -1 or 1")
+		end
+		push!(axcodes, axcode)
+	end
+    return axcodes
+end
+
+"""
 	ornt_transform(start_ornt, end_ornt)
 
 Return the orientation that transforms from `start_ornt` to `end_ornt`

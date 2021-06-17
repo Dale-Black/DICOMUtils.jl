@@ -14,6 +14,7 @@ export
     # Export orientation.jl functions
     io_orientation,
     axcodes2ornt,
+    ornt2axcodes,
     ornt_transform,
     apply_orientation,
     inv_ornt_aff,
