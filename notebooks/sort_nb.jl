@@ -63,7 +63,7 @@ md"""
 const SeriesNumber = (0x0020,0x0011)
 
 # ╔═╡ 7503aac9-f9c2-4c0d-ab1c-42088e82211e
-config1_path = raw"Y:\Canon Images for Dynamic Heart Phantom\Dynamic Phantom\clean_data\CONFIG 8^350";
+config1_path = raw"Y:\Canon Images for Dynamic Heart Phantom\Dynamic Phantom\clean_data\CONFIG 4^275";
 
 # ╔═╡ 79b490af-264c-4bb8-832f-ca38795ba002
 # DICOMUtils.sortbytag_move(config1_path, config1_path, SeriesNumber)
@@ -78,10 +78,10 @@ This should be done for the static (0 bpm) helical scan folders
 const kVp = (0x0018,0x0060)
 
 # ╔═╡ a1a24093-ae31-42ec-a8ca-adf197c3232a
-kv_path = raw"Y:\Canon Images for Dynamic Heart Phantom\Dynamic Phantom\clean_data\CONFIG 6^275\54"
+kv_path = raw"Y:\Canon Images for Dynamic Heart Phantom\Dynamic Phantom\clean_data\CONFIG 4^275\52"
 
 # ╔═╡ a1fab547-777d-4511-94ea-5a9966c88cea
- # DICOMUtils.sortbytag_move(kv_path, kv_path, kVp)
+# DICOMUtils.sortbytag_move(kv_path, kv_path, kVp)
 
 # ╔═╡ 5500af3a-06b3-47c1-8594-6ac5aeff6bc4
 md"""
@@ -93,10 +93,10 @@ This should be done for the dynamic (60, 80, 100 bpm) helical scan folders
 const ImageComments =  (0x0020,0x4000)
 
 # ╔═╡ 71fb31d3-a204-49ac-9683-4265058cd014
-hel_path = raw"Y:\Canon Images for Dynamic Heart Phantom\Dynamic Phantom\clean_data\CONFIG 7^275\49"
+hel_path = raw"Y:\Canon Images for Dynamic Heart Phantom\Dynamic Phantom\clean_data\CONFIG 4^350\51"
 
 # ╔═╡ 4563ad8d-e2f3-4cc0-a95f-491d40be2408
-# DICOMUtils.sortbytag_move(hel_path, hel_path, ImageComments)
+ DICOMUtils.sortbytag_move(hel_path, hel_path, ImageComments)
 
 # ╔═╡ 238ee3f5-3f1b-432d-acd2-29035c0a0791
 md"""
