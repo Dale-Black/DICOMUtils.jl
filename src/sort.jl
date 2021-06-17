@@ -8,25 +8,25 @@ If a `tag` contains either a backslash "\" or a space " ", those will be removed
 to make sorting easier
 """
 function sortbytag_copy(filepath, filepath_new, tag)
-	dir = readdir(filepath)
-	error_paths = []
-	for file = 1:length(dir)
-		dcm_path = string(filepath,"/",dir[file])
-		try
-			dcm = DICOM.dcm_parse(dcm_path)
-			dcm_tag = string(dcm[tag])
-			if (occursin("\\", dcm_tag) || occursin(" ", dcm_tag))
-				dcm_tag = string(replace(dcm_tag, "\\" => ""))
-				dcm_tag = string(replace(dcm_tag, " " => ""))
-			end
-			new_dcm_dir = string(filepath_new,"/",dcm_tag)
-			isdir(new_dcm_dir) || mkdir(new_dcm_dir)
-			cp(dcm_path, string(new_dcm_dir,"/",dir[file]))
-		catch
-			push!(error_paths, dcm_path)
-		end
-	end
-	return error_paths
+    dir = readdir(filepath)
+    error_paths = []
+    for file in 1:length(dir)
+        dcm_path = string(filepath, "/", dir[file])
+        try
+            dcm = DICOM.dcm_parse(dcm_path)
+            dcm_tag = string(dcm[tag])
+            if (occursin("\\", dcm_tag) || occursin(" ", dcm_tag))
+                dcm_tag = string(replace(dcm_tag, "\\" => ""))
+                dcm_tag = string(replace(dcm_tag, " " => ""))
+            end
+            new_dcm_dir = string(filepath_new, "/", dcm_tag)
+            isdir(new_dcm_dir) || mkdir(new_dcm_dir)
+            cp(dcm_path, string(new_dcm_dir, "/", dir[file]))
+        catch
+            push!(error_paths, dcm_path)
+        end
+    end
+    return error_paths
 end
 
 """
@@ -43,23 +43,23 @@ If a `tag` contains either a backslash "\" or a space " ", those will be removed
 to make sorting easier
 """
 function sortbytag_move(filepath, filepath_new, tag)
-	dir = readdir(filepath)
-	error_paths = []
-	for file = 1:length(dir)
-		dcm_path = string(filepath,"/",dir[file])
-		try
-			dcm = DICOM.dcm_parse(dcm_path)
-			dcm_tag = string(dcm[tag])
-			if (occursin("\\", dcm_tag) || occursin(" ", dcm_tag))
-				dcm_tag = string(replace(dcm_tag, "\\" => ""))
-				dcm_tag = string(replace(dcm_tag, " " => ""))
-			end
-			new_dcm_dir = string(filepath_new,"/",dcm_tag)
-			isdir(new_dcm_dir) || mkdir(new_dcm_dir)
-			mv(dcm_path, string(new_dcm_dir,"/",dir[file]))
-		catch
-			push!(error_paths, dcm_path)
-		end
-	end
-	return error_paths
+    dir = readdir(filepath)
+    error_paths = []
+    for file in 1:length(dir)
+        dcm_path = string(filepath, "/", dir[file])
+        try
+            dcm = DICOM.dcm_parse(dcm_path)
+            dcm_tag = string(dcm[tag])
+            if (occursin("\\", dcm_tag) || occursin(" ", dcm_tag))
+                dcm_tag = string(replace(dcm_tag, "\\" => ""))
+                dcm_tag = string(replace(dcm_tag, " " => ""))
+            end
+            new_dcm_dir = string(filepath_new, "/", dcm_tag)
+            isdir(new_dcm_dir) || mkdir(new_dcm_dir)
+            mv(dcm_path, string(new_dcm_dir, "/", dir[file]))
+        catch
+            push!(error_paths, dcm_path)
+        end
+    end
+    return error_paths
 end
