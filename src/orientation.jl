@@ -1,4 +1,59 @@
 """
+    get_affine(vol::Vector{DICOM.DICOMData})
+    get_affine(slice::DICOM.DICOMData)
+
+Extracts the affine matrix from the DICOM header of the input
+volume or slice.
+
+# Arguments
+
+- `vol::Vector{DICOM.DICOMData}`: 3D DICOM volume or sequence of 2D DICOM
+    slices
+- `slice::DICOM.DICOMData`: 2D DICOM slice
+"""
+function get_affine(vol::Vector{DICOM.DICOMData})
+	ImageOrientation = (0x0020, 0x0037)
+	PixelSpacing = (0x0028, 0x0030)
+	ImagePosition = (0x0020, 0x0032)
+
+	img_ornt = vol[1][ImageOrientation]
+	pix_space = vol[1][PixelSpacing]
+	img_position = vol[1][ImagePosition]
+
+	F11, F21, F31 = img_ornt[1:4]
+	F12, F22, F32 = img_ornt[4:end]
+	dr, dc = pix_space
+	Sx, Sy, Sz = img_position
+
+	a = [F11*dr F12*dc 0 Sx
+		 F21*dr F22*dc 0 Sy
+		 F31*dr F32*dc 0 Sz
+		 0 0 0 1]
+    return a
+end
+
+function get_affine(slice::DICOM.DICOMData)
+	ImageOrientation = (0x0020, 0x0037)
+	PixelSpacing = (0x0028, 0x0030)
+	ImagePosition = (0x0020, 0x0032)
+
+	img_ornt = vol[1][ImageOrientation]
+	pix_space = vol[1][PixelSpacing]
+	img_position = vol[1][ImagePosition]
+
+	F11, F21, F31 = img_ornt[1:4]
+	F12, F22, F32 = img_ornt[4:end]
+	dr, dc = pix_space
+	Sx, Sy, Sz = img_position
+
+	a = [F11*dr F12*dc 0 Sx
+		 F21*dr F22*dc 0 Sy
+		 F31*dr F32*dc 0 Sz
+		 0 0 0 1]
+    return a
+end
+
+"""
     io_orientation(affine, tol=nothing)
 
 Orientation of input axes in terms of output axes for `affine`
