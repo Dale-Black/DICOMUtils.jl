@@ -367,7 +367,7 @@ function orientation(
     axcodes=nothing,
     affine=nothing,
     as_closest_canonical=false,
-    labels=zip(["L" "P" "I"], ["R", "A", "S"]),
+    labels=zip(["L" "P" "I"], ["R" "A" "S"]),
 )
     sr = length(size(data_array)) - 1
     if (sr ≤ 0)
