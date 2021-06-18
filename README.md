@@ -23,3 +23,40 @@ dcm_data = dcmdir_parse(dcmdir_path)
 vol = load_dcm_array(dcm_data) # returns a 3D array (volume)
 ```
 </details>
+
+<details><summary><b>Orientation</b></summary>
+Example showing how to get the affine matrix of a DICOM volume or slice
+
+```julia
+vol = DICOM.dcmdir_parse(volpath);
+affine = DICOMUtils.get_affine(vol) 
+
+#= 
+returns
+affine = [-0.625  0.0   0.0 159.688
+		   0.0   -0.625 0.0 159.688
+		   0.0    0.0   0.5 820.0
+		   0.0    0.0   0.0   1.0]
+=#
+```
+
+Given an affine matrix, turn the matrix into axcodes (e.g. "RAS")
+
+```julia
+axcodes = DICOMUtils.ornt2axcodes(DICOMUtils.io_orientation(affine))
+
+#=
+returns
+axcodes = ["L", "P", "S"]
+=#
+```
+
+Given a sequence of DICOM slices `Vector{DICOM.DICOMData}` one can
+reorient the image array based on axcodes (e.g. "RAS")
+
+```julia
+orient = (("L", "P", "S"))
+arrvol = DICOMUtils.load_dcm_array(vol)
+arrvol, affvol, new_affvol = DICOMUtils.orientation(arrvol, orient)
+```
+</details>
