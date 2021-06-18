@@ -12,6 +12,7 @@ export
     load_dcm_array,
 
     # Export orientation.jl functions
+    get_affine,
     io_orientation,
     axcodes2ornt,
     ornt2axcodes,
