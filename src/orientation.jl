@@ -1,4 +1,59 @@
 """
+    get_affine(vol::Vector{DICOM.DICOMData})
+    get_affine(slice::DICOM.DICOMData)
+
+Extracts the affine matrix from the DICOM header of the input
+volume or slice.
+
+# Arguments
+
+- `vol::Vector{DICOM.DICOMData}`: 3D DICOM volume or sequence of 2D DICOM
+    slices
+- `slice::DICOM.DICOMData`: 2D DICOM slice
+"""
+function get_affine(vol::Vector{DICOM.DICOMData})
+	ImageOrientation = (0x0020, 0x0037)
+	PixelSpacing = (0x0028, 0x0030)
+	ImagePosition = (0x0020, 0x0032)
+
+	img_ornt = vol[1][ImageOrientation]
+	pix_space = vol[1][PixelSpacing]
+	img_position = vol[1][ImagePosition]
+
+	F11, F21, F31 = img_ornt[1:4]
+	F12, F22, F32 = img_ornt[4:end]
+	dr, dc = pix_space
+	Sx, Sy, Sz = img_position
+
+	a = [F11*dr F12*dc 0 Sx
+		 F21*dr F22*dc 0 Sy
+		 F31*dr F32*dc 0 Sz
+		 0 0 0 1]
+    return a
+end
+
+function get_affine(slice::DICOM.DICOMData)
+	ImageOrientation = (0x0020, 0x0037)
+	PixelSpacing = (0x0028, 0x0030)
+	ImagePosition = (0x0020, 0x0032)
+
+	img_ornt = vol[1][ImageOrientation]
+	pix_space = vol[1][PixelSpacing]
+	img_position = vol[1][ImagePosition]
+
+	F11, F21, F31 = img_ornt[1:4]
+	F12, F22, F32 = img_ornt[4:end]
+	dr, dc = pix_space
+	Sx, Sy, Sz = img_position
+
+	a = [F11*dr F12*dc 0 Sx
+		 F21*dr F22*dc 0 Sy
+		 F31*dr F32*dc 0 Sz
+		 0 0 0 1]
+    return a
+end
+
+"""
     io_orientation(affine, tol=nothing)
 
 Orientation of input axes in terms of output axes for `affine`
@@ -107,6 +162,58 @@ function axcodes2ornt(axcodes, labels=nothing)
         end
     end
     return ornt
+end
+
+"""
+    ornt2axcodes(ornt, labels=nothing)
+
+Convert orientation `ornt` to labels for axis directions
+
+Ported from nibabel
+(https://github.com/nipy/nibabel/blob/e51bcb43d9c6f5ad329ffb230afda0c26b9e8617/nibabel/orientations.py#L309)
+
+Parameters
+----------
+ornt : (N,2) array-like
+    orientation array - see io_orientation docstring
+labels : optional, None or sequence of (2,) sequences
+    (2,) sequences are labels for (beginning, end) of output axis.  That
+    is, if the first row in `ornt` is ``[1, 1]``, and the second (2,)
+    sequence in `labels` is ('back', 'front') then the first returned axis
+    code will be ``'front'``.  If the first row in `ornt` had been
+    ``[1, -1]`` then the first returned value would have been ``'back'``.
+    If None, equivalent to ``(('L','R'),('P','A'),('I','S'))`` - that is -
+    RAS axes.
+Returns
+-------
+axcodes : (N,) tuple
+    labels for positive end of voxel axes.  Dropped axes get a label of
+    None.
+"""
+function ornt2axcodes(ornt, labels=nothing)
+	if labels == nothing
+		labels = collect(zip(["L" "P" "I"], ["R", "A", "S"]))
+	end
+    axcodes = []
+	 for row in eachrow(ornt)
+		axno, direction = row[1], row[2]
+        if isnan(axno)
+            push!(axcodes, nothing)
+            continue
+		end
+		axint = Int(round(axno))
+		if axint != axno
+			error("Non integer axis number $(axno)")
+		elseif direction == 1
+			axcode = labels[axint][2]
+		elseif direction == -1
+			axcode = labels[axint][1]
+		else
+			error("Direction should be -1 or 1")
+		end
+		push!(axcodes, axcode)
+	end
+    return axcodes
 end
 
 """
@@ -260,7 +367,7 @@ function orientation(
     axcodes=nothing,
     affine=nothing,
     as_closest_canonical=false,
-    labels=zip(["L" "P" "I"], ["R", "A", "S"]),
+    labels=zip(["L" "P" "I"], ["R" "A" "S"]),
 )
     sr = length(size(data_array)) - 1
     if (sr ≤ 0)
