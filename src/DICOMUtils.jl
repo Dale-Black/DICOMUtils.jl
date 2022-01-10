@@ -10,6 +10,7 @@ include("./sort.jl")
 export
     # Export load.jl functions
     load_dcm_array,
+    get_pixel_size,
 
     # Export orientation.jl functions
     get_affine,
