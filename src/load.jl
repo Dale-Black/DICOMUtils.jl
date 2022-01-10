@@ -8,3 +8,26 @@ function load_dcm_array(dcm_data::Vector{DICOM.DICOMData})
         [dcm_data[i][(0x7fe0, 0x0010)] for i in 1:length(dcm_data)]...; dims=3
     )
 end
+
+"""
+WARNING - BROKEN, NEEDS ADJUSTMENT
+    get_pixel_size(header)
+
+Get the pixel information of the DICOM image given the `header` info.
+Returns the x, y, and z values, where `z` corresponds to slice thickness
+
+"""
+function get_pixel_size(header)
+	pixel_size = 
+		try
+			header[(0x0028, 0x0030)]
+            push!(pixel_size, header[(0x0018, 0x0050)])
+		catch
+			FOV = header[(0x0018, 0x1100)]
+			matrix_size = header[(0x0028, 0x0010)]
+		
+			pixel_size = FOV / matrix_size
+            push!(pixel_size, header[(0x0018, 0x0050)])
+		end
+	return pixel_size
+end
