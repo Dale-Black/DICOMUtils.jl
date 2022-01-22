@@ -9,6 +9,8 @@ include("./sort.jl")
 
 export
     # Export load.jl functions
+    dcm_list_builder,
+    dcm_reader,
     load_dcm_array,
     get_pixel_size,
 
