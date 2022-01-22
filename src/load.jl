@@ -1,4 +1,125 @@
 """
+	dcm_list_builder(path)
+
+Function to get list of DICOM files from a directory
+"""
+function dcm_list_builder(path)
+    dcm_path_list = []
+    for (dirpath, dirnames, filenames) in walkdir(path, topdown=true)
+        if (dirpath in dcm_path_list) == false
+            for filename in filenames
+                try
+                    tmp_str = string(dirpath, "/", filename)
+                    ds = dcm_parse(tmp_str)
+                    if (dirpath in dcm_path_list) == false
+                        push!(dcm_path_list, dirpath)
+					end
+				catch
+                    nothing
+				end
+			end
+        else
+                nothing
+		end
+	end
+    return dcm_path_list
+end
+
+"""
+	dcm_reader(dcm_path)
+
+Read dcm_files from path. Path certainly contains DCM files, 
+as tested by `dcm_list_builder` function
+"""
+function dcm_reader(dcm_path)
+    dcm_files = []
+    for (dirpath, dirnames, filenames) in walkdir(dcm_path, topdown=false)
+        for filename in filenames
+            try
+                if (filename == "DIRFILE") == false   
+                    dcm_file = string(dirpath, "/", filename)
+                    dcm_parse(dcm_file)
+                    push!(dcm_files, dcm_file)
+				end
+			catch
+				nothing
+			end
+		end
+	end
+
+    read_RefDs = true
+	local RefDs
+    while read_RefDs
+        for index in range(1, length(dcm_files))
+            try
+                RefDs = dcm_parse(dcm_files[index])
+                read_RefDs = false
+                break
+			catch
+                nothing
+			end
+		end
+	end
+
+	header = RefDs.meta
+	slice_thick_ori = header[(0x0018, 0x0050)]
+	rows, cols = Int(header[(0x0028, 0x0010)]), Int(header[(0x0028, 0x0011)])
+    
+    ConstPixelDims = (rows, cols, length(dcm_files))
+    dcm_array = zeros(ConstPixelDims...)
+
+    instances = []    
+    for filenameDCM in dcm_files
+        try
+            ds = dcm_parse(filenameDCM)
+			head = ds.meta
+			InstanceNumber = head[(0x0020, 0x0013)]
+            push!(instances, InstanceNumber)
+		catch
+            nothing
+		end
+	end
+    
+    sort(instances)
+
+    index = 0
+    for filenameDCM in dcm_files
+        try
+            ds = dcm_parse(filenameDCM)
+			head = ds.meta
+			InstanceNumber = head[(0x0020, 0x0013)]
+			index = findall(x -> x==InstanceNumber, instances)
+			pixel_array = head[(0x7fe0, 0x0010)]
+            dcm_array[:, :, index] = pixel_array
+            if InstanceNumber in instances[1:3]
+                if InstanceNumber == instances[1]
+					SliceLocation = head[(0x0020, 0x1041)]
+                    loc_1 = SliceLocation
+                else
+					SliceLocation = head[(0x0020, 0x1041)]
+                    loc_2 = SliceLocation
+				end
+			end
+            index += 1
+		catch
+            nothing
+		end
+	end
+	
+    try
+		SliceThickness = head[(0x0018, 0x0050)]
+        SliceThickness = abs(loc_1 - loc_2)
+	catch
+        nothing
+	end
+        
+    RescaleSlope = header[(0x0028, 0x1053)]
+	RescaleIntercept = header[(0x0028, 0x1052)]
+    dcm_array = dcm_array .* RescaleSlope .+ RescaleIntercept
+    return RefDs, dcm_array, slice_thick_ori
+end
+
+"""
     load_dcm_array(dcm_data::Vector{DICOM.DICOMData})
 Given some DICOM.DICOMData, `load_dcm_array` loads the pixels
 of each slice into a 3D array and returns the array
