@@ -80,7 +80,7 @@ function dcm_reader(dcm_path)
 		end
 	end
     
-    sort(instances)
+    sort!(instances)
 
     index = 0
     for filenameDCM in dcm_files
@@ -91,32 +91,16 @@ function dcm_reader(dcm_path)
 			index = findall(x -> x==InstanceNumber, instances)
 			pixel_array = head[(0x7fe0, 0x0010)]
             dcm_array[:, :, index] = pixel_array
-            if InstanceNumber in instances[1:3]
-                if InstanceNumber == instances[1]
-					SliceLocation = head[(0x0020, 0x1041)]
-                    loc_1 = SliceLocation
-                else
-					SliceLocation = head[(0x0020, 0x1041)]
-                    loc_2 = SliceLocation
-				end
-			end
             index += 1
 		catch
             nothing
 		end
 	end
 	
-    try
-		SliceThickness = head[(0x0018, 0x0050)]
-        SliceThickness = abs(loc_1 - loc_2)
-	catch
-        nothing
-	end
-        
     RescaleSlope = header[(0x0028, 0x1053)]
 	RescaleIntercept = header[(0x0028, 0x1052)]
     dcm_array = dcm_array .* RescaleSlope .+ RescaleIntercept
-    return RefDs, dcm_array, slice_thick_ori
+    return RefDs.meta, dcm_array, slice_thick_ori
 end
 
 """
