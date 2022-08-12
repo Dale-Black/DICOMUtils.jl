@@ -81,6 +81,7 @@ function dcm_reader(dcm_path)
 	end
     
     sort!(instances)
+    instances = uniques(instances)
 
     index = 0
     for filenameDCM in dcm_files
